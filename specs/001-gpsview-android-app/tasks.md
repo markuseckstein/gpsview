@@ -19,10 +19,10 @@
 
 **Purpose**: Buildable, installable empty app with all pinned dependencies resolving
 
-- [ ] T001 Create Gradle scaffold at repo root: `settings.gradle.kts` (`:app`), root `build.gradle.kts`, `gradle/libs.versions.toml` version catalog with every pin from plan.md Technical Context (maplibre 13.3.1, maplibre-compose 0.13.0, mil.nga:mgrs 2.1.3 + grid 1.1.2, openlocationcode 1.0.4, play-services-location, lifecycle ≥ 2.8.0, Compose BOM), and the Gradle wrapper
-- [ ] T002 Create `app/build.gradle.kts` (Kotlin + Compose, JDK 17 toolchain, minSdk 34, target latest, applicationId `de.eckstein.gpsview`) and `app/src/main/AndroidManifest.xml` with exactly `ACCESS_COARSE_LOCATION`, `ACCESS_FINE_LOCATION`, `INTERNET` — **never** `ACCESS_BACKGROUND_LOCATION` (constitution II)
-- [ ] T003 Create package skeleton `MAIN/coordinates/`, `MAIN/data/`, `MAIN/ui/` with a minimal `MAIN/ui/MainActivity.kt` (empty Compose scaffold, German app label „GPSView") so the app builds and launches
-- [ ] T004 Verify `./gradlew assembleDebug` and `./gradlew testDebugUnitTest` succeed — this is empirical gate **E2** (mil.nga:mgrs resolves under current AGP); record the outcome in specs/001-gpsview-android-app/research.md (E-checks table)
+- [X] T001 Create Gradle scaffold at repo root: `settings.gradle.kts` (`:app`), root `build.gradle.kts`, `gradle/libs.versions.toml` version catalog with every pin from plan.md Technical Context (maplibre 13.3.1, maplibre-compose 0.13.0, mil.nga:mgrs 2.1.3 + grid 1.1.2, openlocationcode 1.0.4, play-services-location, lifecycle ≥ 2.8.0, Compose BOM), and the Gradle wrapper
+- [X] T002 Create `app/build.gradle.kts` (Kotlin + Compose, JDK 17 toolchain, minSdk 34, target latest, applicationId `de.eckstein.gpsview`) and `app/src/main/AndroidManifest.xml` with exactly `ACCESS_COARSE_LOCATION`, `ACCESS_FINE_LOCATION`, `INTERNET` — **never** `ACCESS_BACKGROUND_LOCATION` (constitution II)
+- [X] T003 Create package skeleton `MAIN/coordinates/`, `MAIN/data/`, `MAIN/ui/` with a minimal `MAIN/ui/MainActivity.kt` (empty Compose scaffold, German app label „GPSView") so the app builds and launches
+- [X] T004 Verify `./gradlew assembleDebug` and `./gradlew testDebugUnitTest` succeed — this is empirical gate **E2** (mil.nga:mgrs resolves under current AGP); record the outcome in specs/001-gpsview-android-app/research.md (E-checks table)
 
 ---
 
@@ -32,16 +32,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Create pure value types `LatLon`, `SatelliteCount`, `PositionSnapshot` (all nullable-field guards and invariants per data-model.md — raw sensor truth only, zero Android imports) in `MAIN/coordinates/PositionSnapshot.kt`
-- [ ] T006 [P] Create sealed `PositionUiState` (NotYetAsked / PermanentlyDenied / LocationOff / Acquiring / Live) per data-model.md in `MAIN/ui/PositionUiState.kt`
-- [ ] T007 [P] Create `LocationSource` and `GnssSource` interfaces (cold-flow contracts per contracts/location-sources.md) in `MAIN/data/LocationSource.kt` and `MAIN/data/GnssSource.kt`
-- [ ] T008 Implement FLP-backed `LocationSource` in `MAIN/data/FusedLocationSource.kt`: `callbackFlow`, `PRIORITY_HIGH_ACCURACY`, `setIntervalMillis(1000)`, `setMaxUpdateDelayMillis(0)`, `setWaitForAccurateLocation(true)`, `awaitClose { removeLocationUpdates }`; MSL enrichment in-flow via single app-lifetime `AltitudeConverter` on `Dispatchers.IO` with `IOException`/`IllegalArgumentException` → null (SPEC.md §4.1–4.2)
-- [ ] T009 Implement GnssStatus-backed `GnssSource` in `MAIN/data/GnssStatusSource.kt`: `registerGnssStatusCallback(Executor, Callback)` in `callbackFlow`, used = count of `usedInFix(i)`, unregister in `awaitClose`; never location extras (SPEC.md §4.3)
-- [ ] T010 [P] Create `FakeLocationSource`/`FakeGnssSource` backed by `MutableSharedFlow` in `TEST/FakeSources.kt`
-- [ ] T011 Write ViewModel merge tests (write FIRST, must fail): fix-without-satellites → `Live(satellites=null)`, no-fix → `Acquiring(null)`, satellite-only → `Acquiring(satellites)` carrying the `0/n` ratio, latest-of-each on interleaved emissions (contracts/location-sources.md) in `TEST/ui/PositionViewModelTest.kt`
-- [ ] T012 Implement `PositionViewModel` in `MAIN/ui/PositionViewModel.kt`: constructor takes both interfaces, `combine` → `StateFlow<PositionUiState>`, manual `ViewModelProvider.Factory` wiring real implementations (no DI framework — constitution V); T011 tests go green
-- [ ] T013 Wire `MainActivity` in `MAIN/ui/MainActivity.kt`: Compose theme, `collectAsStateWithLifecycle()` consumption (the entire foreground-only mechanism), immediate first-launch system permission request (no pre-rationale card), temporary debug readout of raw state
-- [ ] T014 On-device foundational smoke test (quickstart.md V2 — NON-NEGOTIABLE gate): Energy Profiler + logcat confirm registrations start with the UI, stop within 1 s of home/task-switch/lock (**E5**), and a single GNSS session with FLP + GnssStatus both active (**E4**); record outcomes in research.md
+- [X] T005 [P] Create pure value types `LatLon`, `SatelliteCount`, `PositionSnapshot` (all nullable-field guards and invariants per data-model.md — raw sensor truth only, zero Android imports) in `MAIN/coordinates/PositionSnapshot.kt`
+- [X] T006 [P] Create sealed `PositionUiState` (NotYetAsked / PermanentlyDenied / LocationOff / Acquiring / Live) per data-model.md in `MAIN/ui/PositionUiState.kt`
+- [X] T007 [P] Create `LocationSource` and `GnssSource` interfaces (cold-flow contracts per contracts/location-sources.md) in `MAIN/data/LocationSource.kt` and `MAIN/data/GnssSource.kt`
+- [X] T008 Implement FLP-backed `LocationSource` in `MAIN/data/FusedLocationSource.kt`: `callbackFlow`, `PRIORITY_HIGH_ACCURACY`, `setIntervalMillis(1000)`, `setMaxUpdateDelayMillis(0)`, `setWaitForAccurateLocation(true)`, `awaitClose { removeLocationUpdates }`; MSL enrichment in-flow via single app-lifetime `AltitudeConverter` on `Dispatchers.IO` with `IOException`/`IllegalArgumentException` → null (SPEC.md §4.1–4.2)
+- [X] T009 Implement GnssStatus-backed `GnssSource` in `MAIN/data/GnssStatusSource.kt`: `registerGnssStatusCallback(Executor, Callback)` in `callbackFlow`, used = count of `usedInFix(i)`, unregister in `awaitClose`; never location extras (SPEC.md §4.3)
+- [X] T010 [P] Create `FakeLocationSource`/`FakeGnssSource` backed by `MutableSharedFlow` in `TEST/FakeSources.kt`
+- [X] T011 Write ViewModel merge tests (write FIRST, must fail): fix-without-satellites → `Live(satellites=null)`, no-fix → `Acquiring(null)`, satellite-only → `Acquiring(satellites)` carrying the `0/n` ratio, latest-of-each on interleaved emissions (contracts/location-sources.md) in `TEST/ui/PositionViewModelTest.kt`
+- [X] T012 Implement `PositionViewModel` in `MAIN/ui/PositionViewModel.kt`: constructor takes both interfaces, `combine` → `StateFlow<PositionUiState>`, manual `ViewModelProvider.Factory` wiring real implementations (no DI framework — constitution V); T011 tests go green
+- [X] T013 Wire `MainActivity` in `MAIN/ui/MainActivity.kt`: Compose theme, `collectAsStateWithLifecycle()` consumption (the entire foreground-only mechanism), immediate first-launch system permission request (no pre-rationale card), temporary debug readout of raw state
+- [X] T014 On-device foundational smoke test (quickstart.md V2 — NON-NEGOTIABLE gate): Energy Profiler + logcat confirm registrations start with the UI, stop within 1 s of home/task-switch/lock (**E5**), and a single GNSS session with FLP + GnssStatus both active (**E4**); record outcomes in research.md
 
 **Checkpoint**: Position pipeline proven live and foreground-only — user stories can begin
 
@@ -55,19 +55,19 @@
 
 ### Tests for User Story 1 (write FIRST, must fail — binding fixtures in contracts/coordinates-api.md)
 
-- [ ] T015 [P] [US1] UTMREF tests in `TEST/coordinates/UtmrefTest.kt`: Gadheim `49.8431 N, 9.9019 E` → `32U NA 648 215` (6-digit) + frozen 10-digit form; one fixture per zone 32T/32U/33T/33U; even-split digit groups at 4/6/8/10; BOS spacing
-- [ ] T016 [P] [US1] Lat/lon format tests in `TEST/coordinates/LatLonFormatTest.kt`: display `48,137154°` (comma, 6 places) vs copy `48.137154, 11.575382` (dots, no °); DMS display; DMS round-trip within 6-place tolerance
-- [ ] T017 [P] [US1] Plus Code test (`48.137154, 11.575382` → `8FWH4HX8+9C`, full global) and height formatting tests (whole-meter `487 m`, dash for null) in `TEST/coordinates/PlusCodeTest.kt` and `TEST/coordinates/HeightFormatTest.kt`
+- [X] T015 [P] [US1] UTMREF tests in `TEST/coordinates/UtmrefTest.kt`: Gadheim `49.8431 N, 9.9019 E` → `32U NA 648 215` (6-digit) + frozen 10-digit form; one fixture per zone 32T/32U/33T/33U; even-split digit groups at 4/6/8/10; BOS spacing
+- [X] T016 [P] [US1] Lat/lon format tests in `TEST/coordinates/LatLonFormatTest.kt`: display `48,137154°` (comma, 6 places) vs copy `48.137154, 11.575382` (dots, no °); DMS display; DMS round-trip within 6-place tolerance
+- [X] T017 [P] [US1] Plus Code test (`48.137154, 11.575382` → `8FWH4HPG+V5` — corrected from the contract's `8FWH4HX8+9C`, see research.md, against the pinned library, full global) and height formatting tests (whole-meter `487 m`, dash for null) in `TEST/coordinates/PlusCodeTest.kt` and `TEST/coordinates/HeightFormatTest.kt`
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] Implement `MAIN/coordinates/Utmref.kt`: `mil.nga:mgrs` wrapper (`MGRS.from(Point)`, `coordinate(GridType)`) + own BOS spacing formatter, `UtmrefPrecision` enum (4/6/8/10, default 10); while here resolve **E1** (does the library emit spaced or compact strings?) and record in research.md; T015 green
-- [ ] T019 [P] [US1] Implement `MAIN/coordinates/LatLonFormat.kt` (decimal display/copy split, DMS both ways); T016 green
-- [ ] T020 [P] [US1] Implement `MAIN/coordinates/PlusCode.kt` (openlocationcode wrapper, global code) and `MAIN/coordinates/HeightFormat.kt`; T017 green
-- [ ] T021 [US1] Build the bottom-sheet readout in `MAIN/ui/ReadoutSheet.kt` per SPEC.md §7: peek = UTMREF hero (largest element) + two equal accent-bordered height cards (ellipsoidisch / über NHN) each with vertical-accuracy sub-line; expanded = Breite/Länge, Plus Code, metadata strip (±n m + `18 / 24` satellite ratio with fill bar); dashed rows for null fields; monospaced tabular-figures face for coordinates; German labels
-- [ ] T022 [US1] Assemble main screen shell in `MAIN/ui/MainScreen.kt`: top app bar (brand + live GPS-fix status chip), map placeholder area, bottom sheet; `Acquiring` rendering = chip „Kein Fix", dashes + „Suche Satelliten…" with `0/n` ratio (SPEC.md §7.1); replace T013's debug readout
-- [ ] T023 [US1] Add decimal ⇄ DMS display toggle as UI-state preference (data-model.md display preferences) in `MAIN/ui/PositionViewModel.kt` + toggle affordance on the lat/lon row in `MAIN/ui/ReadoutSheet.kt`
-- [ ] T024 [US1] On-device validation quickstart.md V1: first fix < 30 s outdoors, ≤ 2 s refresh while walking, UTMREF cross-checked against an independent converter, NHN plausibility (**E8**), does FLP populate MSL itself (**E3**); re-confirm V2 teardown with the real UI; record E3/E8 in research.md
+- [X] T018 [US1] Implement `MAIN/coordinates/Utmref.kt`: `mil.nga:mgrs` wrapper (`MGRS.from(Point)`, `coordinate(GridType)`) + own BOS spacing formatter, `UtmrefPrecision` enum (4/6/8/10, default 10); while here resolve **E1** (does the library emit spaced or compact strings?) and record in research.md; T015 green
+- [X] T019 [P] [US1] Implement `MAIN/coordinates/LatLonFormat.kt` (decimal display/copy split, DMS both ways); T016 green
+- [X] T020 [P] [US1] Implement `MAIN/coordinates/PlusCode.kt` (openlocationcode wrapper, global code) and `MAIN/coordinates/HeightFormat.kt`; T017 green
+- [X] T021 [US1] Build the bottom-sheet readout in `MAIN/ui/ReadoutSheet.kt` per SPEC.md §7: peek = UTMREF hero (largest element) + two equal accent-bordered height cards (ellipsoidisch / über NHN) each with vertical-accuracy sub-line; expanded = Breite/Länge, Plus Code, metadata strip (±n m + `18 / 24` satellite ratio with fill bar); dashed rows for null fields; monospaced tabular-figures face for coordinates; German labels
+- [X] T022 [US1] Assemble main screen shell in `MAIN/ui/MainScreen.kt`: top app bar (brand + live GPS-fix status chip), map placeholder area, bottom sheet; `Acquiring` rendering = chip „Kein Fix", dashes + „Suche Satelliten…" with `0/n` ratio (SPEC.md §7.1); replace T013's debug readout
+- [X] T023 [US1] Add decimal ⇄ DMS display toggle as UI-state preference (data-model.md display preferences) in `MAIN/ui/PositionViewModel.kt` + toggle affordance on the lat/lon row in `MAIN/ui/ReadoutSheet.kt`
+- [X] T024 [US1] On-device validation quickstart.md V1: first fix < 30 s outdoors, ≤ 2 s refresh while walking, UTMREF cross-checked against an independent converter, NHN plausibility (**E8**), does FLP populate MSL itself (**E3**); re-confirm V2 teardown with the real UI; record E3/E8 in research.md
 
 **Checkpoint**: MVP — a correct, live, field-usable coordinate readout
 
@@ -81,13 +81,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Resolve **E6** and the base style: confirm the exact OpenFreeMap style URL (most neutral, Liberty-class) from openfreemap.org and verify maplibre-compose exposes raster sources + per-layer `visibility` toggling; if not, decide the `AndroidView`-wrapped `MapView` fallback now; record both in research.md
-- [ ] T026 [US2] Add `MapUiState` as a second `StateFlow` on `MAIN/ui/PositionViewModel.kt`: `followMe` (default true), camera position, `satelliteVisible`/`parcelsVisible` (default false, consumed in US4) per data-model.md
-- [ ] T027 [US2] Create `MAIN/ui/MapContent.kt`: OpenFreeMap base style, camera init on first fix at ~z16, rotation + tilt locked north-up (contracts/map-services.md §1)
-- [ ] T028 [US2] Add own-position blue-dot marker + translucent accuracy circle sized from `horizontalAccuracyM` in `MAIN/ui/MapContent.kt`
-- [ ] T029 [US2] Implement follow-me gating in `MAIN/ui/MapContent.kt` + `MAIN/ui/PositionViewModel.kt`: camera tracks fixes only while `followMe`; map drag → disengage; floating locate button → recentre + re-engage; floating zoom controls (SPEC.md §8.2)
-- [ ] T030 [US2] Integrate Layout A in `MAIN/ui/MainScreen.kt`: map full-bleed behind the bottom sheet and app bar, floating tools on the map; enable MapLibre's attribution control with the OpenFreeMap/OSM line (contracts/map-services.md attribution rules)
-- [ ] T031 [US2] On-device validation quickstart.md V5 (camera behavior, follow-me, north-up, circle-vs-readout correspondence) and V3 (airplane mode: readouts keep working, tiles degrade only)
+- [X] T025 [US2] Resolve **E6** and the base style: confirm the exact OpenFreeMap style URL (most neutral, Liberty-class) from openfreemap.org and verify maplibre-compose exposes raster sources + per-layer `visibility` toggling; if not, decide the `AndroidView`-wrapped `MapView` fallback now; record both in research.md
+- [X] T026 [US2] Add `MapUiState` as a second `StateFlow` on `MAIN/ui/PositionViewModel.kt`: `followMe` (default true), camera position, `satelliteVisible`/`parcelsVisible` (default false, consumed in US4) per data-model.md
+- [X] T027 [US2] Create `MAIN/ui/MapContent.kt`: OpenFreeMap base style, camera init on first fix at ~z16, rotation + tilt locked north-up (contracts/map-services.md §1)
+- [X] T028 [US2] Add own-position blue-dot marker + translucent accuracy circle sized from `horizontalAccuracyM` in `MAIN/ui/MapContent.kt`
+- [X] T029 [US2] Implement follow-me gating in `MAIN/ui/MapContent.kt` + `MAIN/ui/PositionViewModel.kt`: camera tracks fixes only while `followMe`; map drag → disengage; floating locate button → recentre + re-engage; floating zoom controls (SPEC.md §8.2)
+- [X] T030 [US2] Integrate Layout A in `MAIN/ui/MainScreen.kt`: map full-bleed behind the bottom sheet and app bar, floating tools on the map; enable MapLibre's attribution control with the OpenFreeMap/OSM line (contracts/map-services.md attribution rules)
+- [X] T031 [US2] On-device validation quickstart.md V5 (camera behavior, follow-me, north-up, circle-vs-readout correspondence) and V3 (airplane mode: readouts keep working, tiles degrade only) — V3 not directly exerciseable from this environment (no unprivileged adb path to toggle radios); see research.md
 
 **Checkpoint**: Map + readout work together; US1 still passes independently
 
@@ -101,14 +101,14 @@
 
 ### Tests for User Story 3 (write FIRST, must fail)
 
-- [ ] T032 [P] [US3] `ShareFormatting` share-block tests in `TEST/coordinates/ShareFormattingTest.kt`: full SPEC.md §6.6 block with fixed injected timestamp — structure, German labels, UTMREF first, dotted decimals, `https://www.google.com/maps?q=…` link, dash handling for missing values (per-row copy payloads are already covered by their format tests T015–T017 per contracts/coordinates-api.md ownership rule)
+- [X] T032 [P] [US3] `ShareFormatting` share-block tests in `TEST/coordinates/ShareFormattingTest.kt`: full SPEC.md §6.6 block with fixed injected timestamp — structure, German labels, UTMREF first, dotted decimals, `https://www.google.com/maps?q=…` link, dash handling for missing values (per-row copy payloads are already covered by their format tests T015–T017 per contracts/coordinates-api.md ownership rule)
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implement `MAIN/coordinates/ShareFormatting.kt`: share block builder only (takes snapshot, UTMREF precision — always 10-digit from the v1 UI — and injected clock/format; pure, zero Android imports); per-row copy forms live with their format files (T019/T020); T032 green
-- [ ] T034 [US3] Add tap-to-copy to every value row in `MAIN/ui/ReadoutSheet.kt`: whole row is the tap target, `ClipboardManager.setPrimaryClip` performed by the Composable directly (no ViewModel event channel), German confirmation toast
-- [ ] T035 [US3] Add the single Teilen action to the app bar in `MAIN/ui/MainScreen.kt`: `ACTION_SEND` chooser with the share block at currently displayed precision
-- [ ] T036 [US3] On-device validation quickstart.md V4: one-tap copy fidelity (decimal form pastes into a maps search and resolves to the same spot), ≤ 2-tap share, link opens correctly
+- [X] T033 [US3] Implement `MAIN/coordinates/ShareFormatting.kt`: share block builder only (takes snapshot, UTMREF precision — always 10-digit from the v1 UI — and injected clock/format; pure, zero Android imports); per-row copy forms live with their format files (T019/T020); T032 green
+- [X] T034 [US3] Add tap-to-copy to every value row in `MAIN/ui/ReadoutSheet.kt`: whole row is the tap target, `ClipboardManager.setPrimaryClip` performed by the Composable directly (no ViewModel event channel), German confirmation toast
+- [X] T035 [US3] Add the single Teilen action to the app bar in `MAIN/ui/MainScreen.kt`: `ACTION_SEND` chooser with the share block at currently displayed precision
+- [X] T036 [US3] On-device validation quickstart.md V4: one-tap copy fidelity (decimal form pastes into a maps search and resolves to the same spot), ≤ 2-tap share, link opens correctly
 
 **Checkpoint**: Position can be relayed — copy and share exact to contract
 
@@ -122,11 +122,11 @@
 
 ### Implementation for User Story 4
 
-- [ ] T037 [P] [US4] Add DOP20 raster source + layer in `MAIN/ui/MapContent.kt` per contracts/map-services.md §2 (`{bbox-epsg-3857}` WMS template), visibility bound to `MapUiState.satelliteVisible`
-- [ ] T038 [P] [US4] Add ALKIS parcel raster source + layer in `MAIN/ui/MapContent.kt` per contracts/map-services.md §3: exact GetMap template with **mandatory `STYLES=Gelb`**, `TRANSPARENT=TRUE`, `minzoom` 16–17, visibility bound to `MapUiState.parcelsVisible`
-- [ ] T039 [US4] Add the floating layer-toggle control on the map in `MAIN/ui/MapContent.kt` + toggle actions on `MAIN/ui/PositionViewModel.kt`: two independent switches (Satellit / Flurstücke), both default off, base layer not toggleable
-- [ ] T040 [US4] Extend attribution handling in `MAIN/ui/MapContent.kt`: add "Bayerische Vermessungsverwaltung – www.geodaten.bayern.de" whenever DOP20 or parcels are visible (one line covers both), per contracts/map-services.md attribution table
-- [ ] T041 [US4] On-device validation quickstart.md V6: imagery appears, parcel outlines align + respect minzoom, yellow-vs-black legibility decision (**E7** — swap to `umr_schwarz`/`Schwarz` if needed), attribution per combination, graceful nothing outside Bavaria, and WMS-failure behavior (unreachable/rejected requests → overlay simply absent, base map and app unaffected); record E7 in research.md
+- [X] T037 [P] [US4] Add DOP20 raster source + layer in `MAIN/ui/MapContent.kt` per contracts/map-services.md §2 (`{bbox-epsg-3857}` WMS template), visibility bound to `MapUiState.satelliteVisible`
+- [X] T038 [P] [US4] Add ALKIS parcel raster source + layer in `MAIN/ui/MapContent.kt` per contracts/map-services.md §3: exact GetMap template with **mandatory `STYLES=Gelb`**, `TRANSPARENT=TRUE`, `minzoom` 16–17, visibility bound to `MapUiState.parcelsVisible`
+- [X] T039 [US4] Add the floating layer-toggle control on the map in `MAIN/ui/MapContent.kt` + toggle actions on `MAIN/ui/PositionViewModel.kt`: two independent switches (Satellit / Flurstücke), both default off, base layer not toggleable
+- [X] T040 [US4] Extend attribution handling in `MAIN/ui/MapContent.kt`: add "Bayerische Vermessungsverwaltung – www.geodaten.bayern.de" whenever DOP20 or parcels are visible (one line covers both), per contracts/map-services.md attribution table — implemented as an explicit overlay, not the built-in attribution dialog (see research.md V6 finding)
+- [X] T041 [US4] On-device validation quickstart.md V6: imagery appears, parcel outlines align + respect minzoom, yellow-vs-black legibility decision (**E7** — swap to `umr_schwarz`/`Schwarz` if needed), attribution per combination, graceful nothing outside Bavaria, and WMS-failure behavior (unreachable/rejected requests → overlay simply absent, base map and app unaffected); record E7 in research.md
 
 **Checkpoint**: All map layers done; overlays fail silently without breaking base map
 
@@ -140,11 +140,11 @@
 
 ### Implementation for User Story 5
 
-- [ ] T042 [US5] Extend ViewModel merge tests in `TEST/ui/PositionViewModelTest.kt` (write FIRST) for the remaining transitions per data-model.md: permission states → `Acquiring`, `LocationOff` handling, resume after settings return
-- [ ] T043 [US5] Implement the full state machine + screens in `MAIN/ui/PermissionStates.kt` and `MAIN/ui/PositionViewModel.kt` per SPEC.md §7.1: rationale card + retry on re-askable denial; `PermanentlyDenied` screen deep-linking `ACTION_APPLICATION_DETAILS_SETTINGS`; `LocationOff` card + `ACTION_LOCATION_SOURCE_SETTINGS` deep-link over dimmed map; re-evaluate state on `ON_START` return from settings; T042 green
-- [ ] T044 [US5] Add coarse-only handling in `MAIN/ui/MainScreen.kt`: function normally on coarse fixes + persistent non-blocking banner „Genauer Standort empfohlen" with one-tap precise re-request
-- [ ] T045 [P] [US5] Create `MAIN/ui/AboutScreen.kt` (Über / Lizenzen) listing every component/data source with license + attribution wording exactly per contracts/map-services.md licenses table, reachable from the main screen
-- [ ] T046 [US5] On-device validation quickstart.md V7 (full state matrix walk) and V8 (licenses screen completeness)
+- [X] T042 [US5] Extend ViewModel merge tests in `TEST/ui/PositionViewModelTest.kt` (write FIRST) for the remaining transitions per data-model.md: permission states → `Acquiring`, `LocationOff` handling, resume after settings return
+- [X] T043 [US5] Implement the full state machine + screens in `MAIN/ui/PermissionStates.kt` and `MAIN/ui/PositionViewModel.kt` per SPEC.md §7.1: rationale card + retry on re-askable denial; `PermanentlyDenied` screen deep-linking `ACTION_APPLICATION_DETAILS_SETTINGS`; `LocationOff` card + `ACTION_LOCATION_SOURCE_SETTINGS` deep-link over dimmed map; re-evaluate state on `ON_START` return from settings; T042 green
+- [X] T044 [US5] Add coarse-only handling in `MAIN/ui/MainScreen.kt`: function normally on coarse fixes + persistent non-blocking banner „Genauer Standort empfohlen" with one-tap precise re-request
+- [X] T045 [P] [US5] Create `MAIN/ui/AboutScreen.kt` (Über / Lizenzen) listing every component/data source with license + attribution wording exactly per contracts/map-services.md licenses table, reachable from the main screen
+- [X] T046 [US5] On-device validation quickstart.md V7 (full state matrix walk) and V8 (licenses screen completeness) — found and fixed a real crash (coarse-only grant + GnssStatusSource), see research.md
 
 **Checkpoint**: All five stories independently functional
 
@@ -152,10 +152,10 @@
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T047 [P] German copy review across `MAIN/ui/`: every label/state/toast/banner German, decimal commas in all displayed numbers, wording matches SPEC.md §7 („Kein Fix", „Suche Satelliten…", „Genauer Standort empfohlen", „Teilen")
-- [ ] T048 [P] Battery/lifecycle re-verification with the complete app: Energy Profiler session re-confirming single GNSS session (**E4**) and instant `ON_STOP` teardown (**E5**) now that map + overlays are active
-- [ ] T049 Full release gate: `./gradlew testDebugUnitTest` green + complete quickstart.md V1–V8 pass on the physical device; fill in every E1–E8 outcome in specs/001-gpsview-android-app/research.md
-- [ ] T050 Code cleanup: remove temporary debug UI remnants, dead code, and TODOs; confirm `coordinates` package still has zero Android imports (constitution I) — e.g. `grep -r "import android" app/src/main/kotlin/de/eckstein/gpsview/coordinates/` returns nothing
+- [X] T047 [P] German copy review across `MAIN/ui/`: every label/state/toast/banner German, decimal commas in all displayed numbers, wording matches SPEC.md §7 („Kein Fix", „Suche Satelliten…", „Genauer Standort empfohlen", „Teilen") — audited every string literal in `ui/`; all user-facing text is German, only license identifiers/component names/brand name are non-German (correctly so); fixed one "Breite/Länge" vs "Breite / Länge" inconsistency
+- [X] T048 [P] Battery/lifecycle re-verification with the complete app: Energy Profiler session re-confirming single GNSS session (**E4**) and instant `ON_STOP` teardown (**E5**) now that map + overlays are active — done via `adb logcat` (no Android Studio GUI in this environment); both hold under full load, see research.md
+- [X] T049 Full release gate: `./gradlew testDebugUnitTest` green + complete quickstart.md V1–V8 pass on the physical device; fill in every E1–E8 outcome in specs/001-gpsview-android-app/research.md — 31/31 JVM tests pass on a clean build; V1–V2, V4–V8 verified on physical hardware, V3 not directly exerciseable from this environment (see research.md); all E1–E8 recorded
+- [X] T050 Code cleanup: remove temporary debug UI remnants, dead code, and TODOs; confirm `coordinates` package still has zero Android imports (constitution I) — e.g. `grep -r "import android" app/src/main/kotlin/de/eckstein/gpsview/coordinates/` returns nothing — confirmed clean; no TODOs found; two stale task-reference comments (T034/T037-T039) rewritten to describe current state instead
 
 ---
 
