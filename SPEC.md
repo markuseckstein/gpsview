@@ -147,7 +147,9 @@ sealed interface PositionUiState {
     data object NotYetAsked : PositionUiState        // permission not yet requested
     data object PermanentlyDenied : PositionUiState  // denied with "don't ask again"
     data object LocationOff : PositionUiState        // system location setting off
-    data object Acquiring : PositionUiState          // permission granted, no fix yet
+    data class Acquiring(val satellites: SatelliteCount?) : PositionUiState
+                                                     // permission granted, no fix yet;
+                                                     // carries the live 0/n ratio for §7.1
     data class Live(val snapshot: PositionSnapshot) : PositionUiState
 }
 ```
