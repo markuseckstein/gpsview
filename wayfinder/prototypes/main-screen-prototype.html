@@ -1,0 +1,262 @@
+<title>GPSView — Hauptbildschirm (Layout A)</title>
+<!--
+  THROWAWAY PROTOTYPE — Wayfinder ticket "Prototype the main screen layout".
+  RESOLVED: layout A "Karte im Fokus" chosen. This file now records the agreed design.
+    - Map is the hero (full-bleed).
+    - Bottom sheet with a PEEK zone (always visible when collapsed):
+        primary UTMREF + both heights (ellipsoidisch / NHN).
+    - Pull up to reveal lat/lon, Plus Code, accuracy, satellites.
+    - Tap a coordinate row = copy (toast). One Share action for the whole position.
+  Toggle the sheet with the grip / "Sheet" button / ↑↓ keys to see both states.
+  Fake data only. Delete once the spec absorbs this.
+-->
+<style>
+  :root {
+    color-scheme: light dark;
+    --app-bg: #eef2f3; --surface: #ffffff; --surface-2: #e7edee;
+    --ink: #10191c; --ink-2: #47585d; --ink-3: #7c8d92; --line: #d3dcde;
+    --a: #0e9fb0; --a-soft: #d3f0f3; --good: #159e63;
+    --map-a: #93b3a6; --map-b: #b9c9c2; --map-road: #eef2f0; --map-water: #a9c6d4;
+    --page-bg: #dfe5e7; --page-fg: #0f171a; --accent: #0e9fb0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --app-bg: #0c1315; --surface: #121e21; --surface-2: #0e181b;
+      --ink: #eaf1f2; --ink-2: #9fb2b7; --ink-3: #6b7f84; --line: #223035;
+      --a: #22c0d2; --a-soft: #10343a; --good: #3ecf8e;
+      --map-a: #24413c; --map-b: #1a2f33; --map-road: #33474b; --map-water: #1d3a48;
+      --page-bg: #05090a; --page-fg: #eef2f3; --accent: #22c0d2;
+    }
+  }
+  :root[data-theme="light"] {
+    --app-bg: #eef2f3; --surface: #ffffff; --surface-2: #e7edee; --ink: #10191c; --ink-2: #47585d;
+    --ink-3: #7c8d92; --line: #d3dcde; --a: #0e9fb0; --a-soft: #d3f0f3; --good: #159e63;
+    --map-a: #93b3a6; --map-b: #b9c9c2; --map-road: #eef2f0; --map-water: #a9c6d4;
+    --page-bg: #dfe5e7; --page-fg: #0f171a; --accent: #0e9fb0;
+  }
+  :root[data-theme="dark"] {
+    --app-bg: #0c1315; --surface: #121e21; --surface-2: #0e181b; --ink: #eaf1f2; --ink-2: #9fb2b7;
+    --ink-3: #6b7f84; --line: #223035; --a: #22c0d2; --a-soft: #10343a; --good: #3ecf8e;
+    --map-a: #24413c; --map-b: #1a2f33; --map-road: #33474b; --map-water: #1d3a48;
+    --page-bg: #05090a; --page-fg: #eef2f3; --accent: #22c0d2;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .stage {
+    min-height: 100vh; background: var(--page-bg); color: var(--page-fg);
+    font-family: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+    display: flex; flex-direction: column; align-items: center; padding: 28px 16px 60px; gap: 16px;
+  }
+  .stage-head { text-align: center; max-width: 400px; }
+  .stage-head h1 { font-size: 15px; margin: 0 0 4px; font-weight: 600; letter-spacing: .02em; }
+  .stage-head p { margin: 0; font-size: 12.5px; line-height: 1.5; color: color-mix(in srgb, var(--page-fg) 62%, transparent); }
+  .stage-head b { color: var(--accent); }
+
+  .phone {
+    width: 390px; max-width: 100%; height: 800px; background: var(--app-bg); color: var(--ink);
+    border-radius: 40px; border: 10px solid #0a0f11;
+    box-shadow: 0 24px 60px rgba(0,0,0,.35); overflow: hidden; position: relative;
+    display: flex; flex-direction: column;
+  }
+  .statusbar {
+    height: 34px; flex: none; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; font-size: 12px; font-weight: 600; z-index: 40; position: relative;
+  }
+  .statusbar .dots { display: flex; gap: 6px; opacity: .8; font-size: 11px; }
+  .screen { flex: 1; min-height: 0; position: relative; }
+
+  .map {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(115deg, transparent 46%, var(--map-water) 46%, var(--map-water) 54%, transparent 54%),
+      repeating-linear-gradient(0deg, var(--map-road) 0 2px, transparent 2px 58px),
+      repeating-linear-gradient(90deg, var(--map-road) 0 2px, transparent 2px 66px),
+      repeating-linear-gradient(24deg, transparent 0 40px, color-mix(in srgb, var(--map-road) 45%, transparent) 40px 42px),
+      linear-gradient(160deg, var(--map-a), var(--map-b));
+  }
+  .map::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(120% 90% at 50% 38%, transparent 55%, rgba(0,0,0,.18)); }
+  .marker { position: absolute; left: 50%; top: 38%; transform: translate(-50%,-50%);
+    width: 20px; height: 20px; border-radius: 50%; background: var(--a); border: 3px solid #fff;
+    box-shadow: 0 0 0 2px rgba(0,0,0,.25), 0 3px 8px rgba(0,0,0,.4); z-index: 3; }
+  .accuracy { position: absolute; left: 50%; top: 38%; transform: translate(-50%,-50%);
+    width: 132px; height: 132px; border-radius: 50%;
+    background: color-mix(in srgb, var(--a) 22%, transparent);
+    border: 1.5px solid color-mix(in srgb, var(--a) 60%, transparent); z-index: 2; }
+  .attribution { position: absolute; left: 8px; bottom: 8px; z-index: 5; font-size: 9px; line-height: 1.3;
+    color: #fff; background: rgba(0,0,0,.42); border-radius: 5px; padding: 3px 6px; max-width: 60%; }
+  .maptools { position: absolute; right: 12px; top: 64px; z-index: 6; display: flex; flex-direction: column; gap: 8px; }
+  .maptool { width: 40px; height: 40px; border-radius: 12px; background: var(--surface); color: var(--ink);
+    display: grid; place-items: center; font-size: 17px; box-shadow: 0 2px 8px rgba(0,0,0,.28); border: 1px solid var(--line); }
+  .maptool.on { background: var(--a); color: #fff; border-color: transparent; }
+
+  .appbar { position: absolute; top: 0; left: 0; right: 0; z-index: 20;
+    display: flex; align-items: center; gap: 10px; padding: 10px 16px; }
+  .brand { font-weight: 700; font-size: 16px; }
+  .fixchip { display: inline-flex; align-items: center; gap: 6px;
+    background: color-mix(in srgb, var(--good) 16%, var(--surface)); color: var(--good);
+    font-size: 11.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--good) 40%, transparent); }
+  .fixchip .led { width: 7px; height: 7px; border-radius: 50%; background: var(--good); box-shadow: 0 0 6px var(--good); }
+  .sharebtn { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    background: var(--a); color: #fff; border: 0; font: inherit; font-size: 12.5px; font-weight: 600;
+    padding: 7px 12px; border-radius: 999px; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .mono { font-family: ui-monospace, "SF Mono", "Roboto Mono", Menlo, monospace; font-variant-numeric: tabular-nums; }
+  .lbl { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--ink-3); font-weight: 600; }
+  svg.ic { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ---- bottom sheet ---- */
+  .sheet {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 25;
+    background: var(--surface); border-radius: 22px 22px 0 0;
+    box-shadow: 0 -8px 30px rgba(0,0,0,.28); padding: 6px 16px 16px;
+    transition: transform .28s cubic-bezier(.4,0,.2,1);
+  }
+  @media (prefers-reduced-motion: reduce) { .sheet { transition: none; } }
+  .grip-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 0 8px; cursor: pointer; }
+  .grip { width: 40px; height: 4px; border-radius: 3px; background: var(--line); }
+  .grip-hint { font-size: 10px; color: var(--ink-3); font-weight: 600; }
+
+  /* PEEK zone — always visible when collapsed */
+  .peek .primary { display: flex; align-items: flex-start; gap: 10px; }
+  .peek .primary .val { font-size: 25px; font-weight: 700; letter-spacing: .01em; }
+  .row-copy { border-radius: 10px; margin: 0 -8px; padding: 6px 8px; cursor: pointer; }
+  .row-copy:active { background: var(--a-soft); }
+  .heights { display: flex; gap: 10px; margin-top: 12px; }
+  .heights .h { flex: 1; background: var(--surface-2); border: 1px solid var(--line);
+    border-radius: 13px; padding: 10px 12px; }
+  .heights .h.accent { border-color: color-mix(in srgb, var(--a) 45%, var(--line)); }
+  .heights .h .num { font-size: 21px; font-weight: 700; margin-top: 3px; }
+  .heights .h .num small { font-size: 11px; color: var(--ink-3); font-weight: 600; }
+  .heights .h .sub { font-size: 10.5px; color: var(--ink-3); margin-top: 1px; }
+
+  /* EXPAND zone — revealed on pull-up */
+  .expand { overflow: hidden; transition: max-height .28s ease, opacity .2s ease; max-height: 320px; opacity: 1; }
+  .sheet.collapsed .expand { max-height: 0; opacity: 0; }
+  .sheet.collapsed { transform: translateY(0); }
+  .coordrow { display: flex; align-items: center; gap: 8px; padding: 12px 8px; margin: 0 -8px;
+    border-bottom: 1px solid var(--line); border-radius: 10px; cursor: pointer; }
+  .coordrow:active { background: var(--a-soft); }
+  .coordrow .v { font-size: 15px; font-weight: 600; }
+  .coordrow .copyhint { margin-left: auto; color: var(--ink-3); }
+  .divider-note { font-size: 10px; color: var(--ink-3); text-align: center; padding: 12px 0 4px; font-weight: 600; letter-spacing: .04em; }
+  .metastrip { display: flex; gap: 8px; margin-top: 12px; }
+  .mchip { flex: 1; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 9px 11px; }
+  .mchip .big { font-size: 16px; font-weight: 700; }
+  .mchip .big small { font-size: 11px; font-weight: 600; color: var(--ink-3); }
+  .satbar { height: 4px; border-radius: 3px; background: var(--line); margin-top: 7px; overflow: hidden; }
+  .satbar i { display: block; height: 100%; width: 75%; background: var(--a); }
+
+  /* toast */
+  .toast { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(12px);
+    background: var(--ink); color: var(--app-bg); font-size: 12.5px; font-weight: 600;
+    padding: 9px 16px; border-radius: 999px; z-index: 60; opacity: 0; pointer-events: none;
+    transition: opacity .2s, transform .2s; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .protobar { display: flex; gap: 8px; align-items: center; font-family: system-ui, sans-serif; }
+  .protobar button { border: 0; cursor: pointer; background: var(--page-fg); color: var(--page-bg);
+    border-radius: 999px; padding: 8px 14px; font-size: 12px; font-weight: 600; }
+  .protobar span { font-size: 11.5px; color: color-mix(in srgb, var(--page-fg) 60%, transparent); }
+</style>
+
+<div class="stage">
+  <div class="stage-head">
+    <h1>GPSView — Hauptbildschirm · Layout <b>A</b> „Karte im Fokus“</h1>
+    <p>Karte ist Hauptelement. Eingeklappt zeigt das Sheet <b>UTMREF + beide Höhen</b>; hochziehen für Lat/Lon,
+       Plus Code, Genauigkeit und Satelliten. Zeile antippen = kopieren. Alle Werte sind Attrappen.</p>
+  </div>
+
+  <div class="phone">
+    <div class="statusbar"><span>9:41</span><span class="dots"><span>▲</span><span>❄</span><span>100 %</span></span></div>
+    <div class="screen">
+      <div class="map"><div class="accuracy"></div><div class="marker"></div>
+        <div class="attribution">© OpenFreeMap · OpenStreetMap · Bayer. Vermessungsverwaltung</div></div>
+      <div class="appbar">
+        <span class="brand">GPSView</span>
+        <button class="sharebtn" onclick="toast('Standort geteilt')">
+          <svg class="ic" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Teilen</button>
+      </div>
+      <div class="maptools"><div class="maptool">＋</div><div class="maptool">－</div><div class="maptool on">◎</div><div class="maptool">⊞</div></div>
+
+      <div class="sheet collapsed" id="sheet">
+        <div class="grip-wrap" id="grip" role="button" tabindex="0" aria-label="Sheet ein- oder ausklappen">
+          <div class="grip"></div><div class="grip-hint" id="griphint">▲ mehr anzeigen</div>
+        </div>
+
+        <!-- PEEK: always visible -->
+        <div class="peek">
+          <div class="primary row-copy" onclick="toast('UTMREF kopiert')">
+            <div style="flex:1">
+              <div class="lbl">UTMREF / MGRS · BOS</div>
+              <div class="val mono">32U PU 9092 3410</div>
+            </div>
+          </div>
+          <div class="heights">
+            <div class="h accent"><div class="lbl">Höhe ellipsoidisch</div>
+              <div class="num mono">567,3<small> m</small></div><div class="sub">WGS84 · ± 5,1 m</div></div>
+            <div class="h accent"><div class="lbl">Höhe über NHN</div>
+              <div class="num mono">519,8<small> m</small></div><div class="sub">MSL / Geoid · ± 5,4 m</div></div>
+          </div>
+        </div>
+
+        <!-- EXPAND: on pull-up -->
+        <div class="expand">
+          <div class="divider-note">— WEITERE FORMATE & GNSS —</div>
+          <div class="coordrow" onclick="toast('Breite/Länge kopiert')">
+            <div><div class="lbl">Breite / Länge</div>
+              <div class="v mono">48,137154° N · 11,576124° E</div></div>
+            <svg class="ic copyhint" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>
+          </div>
+          <div class="coordrow" onclick="toast('Plus Code kopiert')">
+            <div><div class="lbl">Plus Code</div><div class="v mono">8FWH4HX8+3M</div></div>
+            <svg class="ic copyhint" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></svg>
+          </div>
+          <div class="metastrip">
+            <div class="mchip"><div class="lbl">Genauigkeit</div><div class="big">±3,2<small> m</small></div>
+              <div class="lbl" style="margin-top:2px">horizontal</div></div>
+            <div class="mchip"><div class="lbl">Satelliten</div><div class="big">18<small> / 24</small></div>
+              <div class="satbar"><i></i></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toast" id="toast"></div>
+    </div>
+  </div>
+
+  <div class="protobar">
+    <button id="toggle">Sheet ein-/ausklappen</button>
+    <span>oder Griff antippen · ↑ / ↓</span>
+  </div>
+</div>
+
+<script>
+  const sheet = document.getElementById("sheet");
+  const hint = document.getElementById("griphint");
+  function setCollapsed(c) {
+    sheet.classList.toggle("collapsed", c);
+    hint.textContent = c ? "▲ mehr anzeigen" : "▼ einklappen";
+  }
+  function toggle() { setCollapsed(!sheet.classList.contains("collapsed")); }
+  document.getElementById("toggle").onclick = toggle;
+  document.getElementById("grip").onclick = toggle;
+  document.getElementById("grip").addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+  });
+  addEventListener("keydown", e => {
+    const t = e.target;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+    if (e.key === "ArrowUp") setCollapsed(false);
+    if (e.key === "ArrowDown") setCollapsed(true);
+  });
+
+  let toastTimer;
+  function toast(msg) {
+    const el = document.getElementById("toast");
+    el.textContent = "✓ " + msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("show"), 1400);
+  }
+</script>

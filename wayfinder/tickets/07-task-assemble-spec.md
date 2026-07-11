@@ -7,6 +7,7 @@ blocked-by:
   - 05-prototype-main-screen.md
   - 06-grilling-architecture.md
   - 09-task-confirm-parzellarkarte-license.md
+  - 10-grilling-residual-ux-decisions.md
 ---
 
 ## Question
