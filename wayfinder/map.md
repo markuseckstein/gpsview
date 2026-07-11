@@ -34,6 +34,7 @@ Standing constraints, settled in the charting session (2026-07-09):
 - 09-task-confirm-parzellarkarte-license - CC BY 4.0
 - [Research GNSS metadata and height APIs](tickets/02-research-gnss-metadata-and-height.md) — `Location`/`GnssStatus` platform APIs for all metadata (horizontal/vertical/MSL accuracy, satellites visible vs used-in-fix, ellipsoidal + MSL height); MSL support (`hasMslAltitude`, `AltitudeConverter`) is API 34+ platform, *not* Play services as assumed — corrects the ticket's premise. Findings: [wayfinder/research/02-gnss-metadata-and-height.md](research/02-gnss-metadata-and-height.md).
 - [Research coordinate conversion libraries](tickets/04-research-coordinate-conversion-libraries.md) — `mil.nga:mgrs` (plain JVM artifact, MIT, NGA-authored) for UTMREF/MGRS, formatted per the Bavarian BOS convention confirmed from an official Feuerwehrschulen Bayern document (`32U NA 648 215`, 10-digit/1 m default precision); Bavaria actually spans **four** grid zones (32T/32U/33T/33U), not two — corrects the ticket's premise; `com.google.openlocationcode` for Plus Codes; what3words drop confirmed against its own licence terms (no free/offline path for a personal app). Findings: [wayfinder/research/04-coordinate-conversion-libraries.md](research/04-coordinate-conversion-libraries.md).
+- [Research location provider strategy and battery behavior](tickets/03-research-location-provider-and-battery.md) — `FusedLocationProviderClient` for the position fix (not raw `GPS_PROVIDER`), running alongside `GnssStatus` registration for satellite/height metadata; `PRIORITY_HIGH_ACCURACY` with a 1–2s interval, no batching, no adaptive throttling (not a documented pattern for foreground-live display); `DisposableEffect`+`LifecycleEventObserver` on `ON_START`/`ON_STOP` for instant stop-when-backgrounded; manifest needs both `ACCESS_COARSE_LOCATION` and `ACCESS_FINE_LOCATION`, explicitly no background permission. Findings: [wayfinder/research/03-location-provider-and-battery.md](research/03-location-provider-and-battery.md).
 
 ## Not yet specified
 
@@ -41,7 +42,6 @@ Standing constraints, settled in the charting session (2026-07-09):
 - **Offline behavior & tile caching** — whether/how tiles are cached for field use with no signal. Licensing no longer blocks this (OpenFreeMap and the Bavarian DOP CC BY 4.0 license both permit local caching); still an open product decision on whether to build it.
 - **Coordinate formatting details** — lat/lon display variants (decimal vs DMS), copy/share payload formats. UTMREF precision and grouping are now decided ([Research coordinate conversion libraries](tickets/04-research-coordinate-conversion-libraries.md)); remainder sharpens during the UI prototype.
 - **Permission & error UX** — first-run permission flow, GPS-off / permission-denied / no-fix states. Sharpens after the UI prototype.
-- **Update cadence specifics** — exact request intervals and any adaptive throttling for the live-but-frugal requirement. Sharpens after the location-provider research.
 
 ## Out of scope
 
