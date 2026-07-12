@@ -4,8 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MyLocation
@@ -155,7 +158,10 @@ fun MapContent(
         }
 
         Column(
-            modifier = Modifier.align(Alignment.TopStart).padding(16.dp),
+            modifier =
+                Modifier.align(Alignment.TopStart)
+                    .windowInsetsPadding(WindowInsets.safeDrawing)
+                    .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             FilterChip(
@@ -184,6 +190,7 @@ fun MapContent(
                 color = Color.White,
                 modifier =
                     Modifier.align(Alignment.BottomStart)
+                        .windowInsetsPadding(WindowInsets.safeDrawing)
                         .padding(start = 56.dp, bottom = 4.dp, end = 16.dp)
                         .background(Color.Black.copy(alpha = 0.45f))
                         .padding(horizontal = 4.dp, vertical = 2.dp),
@@ -191,7 +198,10 @@ fun MapContent(
         }
 
         Column(
-            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+            modifier =
+                Modifier.align(Alignment.BottomEnd)
+                    .windowInsetsPadding(WindowInsets.safeDrawing)
+                    .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             SmallFloatingActionButton(
